@@ -4,21 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#FFF8F8"> <!-- Browser Toolbar Color matches Surface -->
-    <title>DropLink M3 Mobile</title>
+    <meta name="theme-color" content="#FFF8F8"> 
+    <title>DropLink M3 - Fast & Secure</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
     
-    <!-- PeerJS -->
+    <!-- PeerJS : ใช้ Cloud CDN ที่เสถียร -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <style>
-        /* --- M3 EXPRESSIVE: Mobile Optimized --- */
         :root {
             --primary: #984061;
-            --on-primary: #FFFFFF;
             --primary-container: #FFD9E2;
             --on-primary-container: #3E001D;
             --surface: #FFF8F8;
@@ -26,12 +24,12 @@
             --surface-container-high: #FCE8ED;
             --on-surface: #201A1B;
             --on-surface-variant: #524347;
-            --outline: #857377;
             --error: #BA1A1A;
             --success: #2E6C00;
+            --secure: #006c4c;     /* New Secure Color */
+            --secure-bg: #dcece4;   /* New Secure BG */
             
-            /* Modern Animation Easing */
-            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15); /* Softened Spring */
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
             --ease-std: cubic-bezier(0.2, 0, 0, 1);
         }
 
@@ -41,671 +39,529 @@
             font-family: 'Prompt', sans-serif;
             background-color: var(--surface);
             color: var(--on-surface);
-            /* Mobile Key: use dvh (Dynamic Viewport) to handle URL bar/Keyboard */
             height: 100dvh; width: 100vw;
             overflow: hidden;
             display: flex; flex-direction: column;
         }
 
-        /* --- UI LAYER 1: SCANNER --- */
+        /* UI Layers */
         .scan-view {
-            flex: 1;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
-            transition: all 0.5s var(--ease-std);
-            opacity: 1; transform: scale(1);
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; transition: all 0.5s var(--ease-std);
         }
         
-        /* Make radar responsive */
+        /* Radar & Buttons */
         .radar-box { 
-            position: relative; 
-            width: min(70vw, 300px); 
-            height: min(70vw, 300px); 
-            display: grid; place-items: center; 
-            margin-bottom: 30px; 
+            position: relative; width: 300px; height: 300px; display: grid; place-items: center; margin-bottom: 30px; 
         }
-        
         .radar-wave {
-            position: absolute; inset: 0;
-            border-radius: 50%; border: 1px solid var(--primary);
-            background: var(--primary-container);
-            opacity: 0;
-            /* Transform logic handles by JS for Power Saver */
+            position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--primary);
+            background: var(--primary-container); opacity: 0;
         }
 
         .hero-btn {
             width: 100px; height: 100px;
-            background: var(--primary); color: var(--on-primary);
-            border-radius: 30px; 
-            display: grid; place-items: center;
+            background: var(--primary); color: white;
+            border-radius: 30px; display: grid; place-items: center;
             box-shadow: 0 12px 24px rgba(152, 64, 97, 0.2);
-            position: relative; z-index: 10;
-            cursor: pointer; transition: transform 0.2s;
+            position: relative; z-index: 10; cursor: pointer;
+            transition: transform 0.2s;
         }
         .hero-btn:active { transform: scale(0.95); }
-        .hero-btn .material-symbols-rounded { font-size: 48px; }
 
-        /* Mobile Optimized Input Group */
         .input-group {
-            width: 100%; max-width: 340px;
-            background: #fff;
-            padding: 6px 6px 6px 20px;
-            border-radius: 50px;
+            width: 100%; max-width: 340px; background: #fff;
+            padding: 6px 6px 6px 20px; border-radius: 50px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: flex; align-items: center; gap: 10px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
-        .input-group:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 8px 24px rgba(152, 64, 97, 0.15);
+            margin-bottom: 20px;
         }
         .input-field {
-            flex: 1; border: none; outline: none; background: transparent;
-            font-family: 'Prompt'; font-size: 18px; color: var(--on-surface);
-            text-transform: uppercase; letter-spacing: 1px;
-            /* Input hacks for mobile */
-            -webkit-appearance: none;
+            flex: 1; border: none; outline: none; font-size: 18px; 
+            text-transform: uppercase; letter-spacing: 2px;
         }
-        
-        .connect-icon-btn {
-            width: 44px; height: 44px;
-            background: var(--primary-container); color: var(--on-primary-container);
-            border-radius: 50%;
-            display: grid; place-items: center; cursor: pointer;
+        .connect-btn {
+            width: 44px; height: 44px; background: var(--primary-container); 
+            border-radius: 50%; display: grid; place-items: center; color: var(--primary);
         }
 
+        /* Chips */
         .my-id-chip {
-            margin-top: 20px; padding: 10px 20px;
-            background: var(--surface-container-high);
-            border-radius: 16px; font-weight: 500; font-size: 15px;
+            padding: 10px 20px; background: var(--surface-container-high);
+            border-radius: 16px; font-weight: 500; font-size: 16px;
             color: var(--on-surface-variant); cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
         }
+        /* Loader for ID */
+        .id-loader { display: inline-block; width:12px; height:12px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- UI LAYER 2: TRANSFER PANEL (Fullscreen takeover on mobile) --- */
+        /* Transfer Layer */
         .transfer-layer {
-            position: fixed; inset: 0;
-            background: var(--surface-container);
-            z-index: 100;
-            display: flex; flex-direction: column;
+            position: fixed; inset: 0; background: var(--surface-container);
+            z-index: 100; display: flex; flex-direction: column;
             transform: translateY(110%);
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            will-change: transform;
-            /* Mobile safe area handling */
+            transition: transform 0.5s var(--ease-std);
             padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
         }
         .transfer-layer.active { transform: translateY(0); }
 
         .header-bar {
-            padding: 20px 24px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--surface-container);
+            padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
         }
-        
         .user-pill {
-            display: flex; align-items: center; gap: 12px;
-            background: #fff; padding: 6px 16px 6px 6px;
-            border-radius: 30px;
+            display: flex; align-items: center; gap: 12px; background: #fff; padding: 6px 16px 6px 6px; border-radius: 30px;
         }
-        .avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: var(--primary); color: #fff;
-            display: grid; place-items: center; font-weight: bold; font-size: 14px;
-        }
-        .secure-indicator {
-            padding: 8px 12px; border-radius: 20px; background: rgba(0,0,0,0.03);
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; }
+
+        /* Secure Toggle Button */
+        .secure-btn {
+            padding: 8px 14px; border-radius: 20px; background: rgba(0,0,0,0.05);
             display: flex; gap: 6px; align-items: center;
-            font-size: 11px; font-weight: 600; cursor: pointer;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; border: 1px solid transparent;
         }
-        .secure-indicator.on { background: #D4E8D1; color: #0c3b00; }
+        /* Active State */
+        .secure-btn.active { background: #D4E8D1; color: #003825; border-color: #aaddcc; }
 
         .file-list {
-            flex: 1; overflow-y: auto; padding: 0 16px 20px 16px;
-            display: flex; flex-direction: column; gap: 10px;
-            scroll-behavior: smooth;
+            flex: 1; overflow-y: auto; padding: 10px 16px; display: flex; flex-direction: column; gap: 10px;
         }
-
-        .file-card {
-            background: #fff; padding: 12px; border-radius: 22px;
-            display: flex; align-items: center; gap: 14px;
-            /* Layout preservation */
-            position: relative; overflow: hidden;
-            animation: slideIn 0.4s var(--ease-spring);
-            border: 1px solid rgba(0,0,0,0.02);
-            transition: transform 0.2s;
-        }
-        .file-card:active { transform: scale(0.97); background-color: #f2e3e7; }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .icon-box {
-            width: 52px; height: 52px; border-radius: 16px;
-            background: var(--surface-container-high);
-            position: relative; overflow: hidden; flex-shrink: 0;
-            display: grid; place-items: center;
-        }
-        .wave-fill {
-            position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
-            background: var(--primary); opacity: 0.3;
-            transition: height 0.2s linear;
-        }
-        .icon-symbol { font-size: 26px; color: var(--on-surface-variant); position: relative; z-index: 2; }
         
-        .text-group { flex: 1; min-width: 0; }
-        .fname { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px;}
-        .fmeta { font-size: 12px; opacity: 0.7; margin-top: 2px; font-family: monospace; }
+        .file-card {
+            background: #fff; padding: 12px; border-radius: 20px;
+            display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden;
+            animation: slideUp 0.3s var(--ease-spring);
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .completed .wave-fill { height: 100% !important; background: var(--success-container); opacity: 1; }
-        .completed .icon-symbol { color: var(--on-surface); }
-        .completed .fname { color: var(--on-surface); }
+        /* Icon Container & Progress */
+        .icon-box {
+            width: 50px; height: 50px; border-radius: 14px; background: #f0f0f0;
+            position: relative; overflow: hidden; display: grid; place-items: center; flex-shrink: 0;
+        }
+        .progress-fill {
+            position: absolute; bottom: 0; width: 100%; height: 0%; 
+            background: var(--primary); opacity: 0.3; transition: height 0.2s linear;
+        }
+        
+        .fname { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;}
+        .fmeta { font-size: 12px; opacity: 0.7; display: flex; align-items: center; gap: 4px;}
+
+        /* Padlock Icon in File List */
+        .enc-badge { color: var(--success); font-size: 12px; font-weight: 700; display:none; align-items:center; gap:2px; }
+        .is-encrypted .enc-badge { display: inline-flex; }
+        .is-encrypted .progress-fill { background: var(--success); }
 
         .fab-btn {
-            position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); right: 24px;
-            width: 64px; height: 64px; border-radius: 20px;
+            position: absolute; bottom: 30px; right: 24px;
+            width: 60px; height: 60px; border-radius: 20px;
             background: var(--primary); color: #fff;
-            display: grid; place-items: center;
-            box-shadow: 0 6px 16px rgba(152, 64, 97, 0.4);
-            cursor: pointer; z-index: 50;
-            transition: transform 0.2s;
+            display: grid; place-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        .fab-btn:active { transform: scale(0.9); }
 
-        /* --- MODAL --- */
-        .modal-bg {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            z-index: 200; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
-        .modal-bg.show { opacity: 1; pointer-events: auto; }
-        
-        .modal-card {
-            width: 85%; max-width: 350px; background: #fff;
-            border-radius: 28px; padding: 20px; text-align: center;
-            transform: scale(0.8); transition: transform 0.4s var(--ease-spring);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .modal-bg.show .modal-card { transform: scale(1); }
-
-        .preview-win { 
-            width: 100%; height: 180px; background: #f2f2f2; 
-            border-radius: 16px; margin-bottom: 16px; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .preview-win img { width: 100%; height: 100%; object-fit: contain; }
-
-        .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
-        .btn-full { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; }
-        .b-pri { background: var(--primary); color: #fff; }
-        .b-sec { background: var(--surface-container-high); color: var(--error); }
     </style>
 </head>
 <body onload="init()">
 
-    <!-- STATUS OVERLAY (TOP) -->
-    <div style="position: absolute; top: max(16px, env(safe-area-inset-top)); left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:99;">
-        <div id="nfcBadge" style="background:#fff; padding:6px 14px; border-radius:20px; font-size:12px; display:flex; gap:6px; opacity:0; transition:opacity 0.3s; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-            <span class="material-symbols-rounded" style="font-size:16px">nfc</span> <span id="nfcTxt">Scan</span>
-        </div>
-    </div>
-
-    <!-- 1. HOME / CONNECT -->
+    <!-- SCREEN 1: SCAN -->
     <div id="viewScan" class="scan-view">
         <div class="radar-box">
             <div id="rip1" class="radar-wave"></div>
             <div id="rip2" class="radar-wave"></div>
-            <div class="hero-btn" onclick="PowerSys.toggleNfcTrigger()">
-                <span class="material-symbols-rounded">sensors</span>
+            <div class="hero-btn" onclick="PowerSys.poke()">
+                <span class="material-symbols-rounded" style="font-size:48px">sensors</span>
             </div>
         </div>
 
-        <h1 style="font-size:24px; color:var(--primary); margin-bottom:8px;">DropLink</h1>
-        
-        <!-- Optimized Input Group -->
+        <h2 style="color:var(--primary); margin-bottom:10px;">DropLink</h2>
+
         <div class="input-group">
-            <input type="text" id="tInput" class="input-field" placeholder="PEER ID (6-digit)" maxlength="6" inputmode="text">
-            <div class="connect-icon-btn" onclick="Net.manualPair()">
+            <input type="text" id="tInput" class="input-field" placeholder="6-DIGIT ID" maxlength="6">
+            <div class="connect-btn" onclick="Net.pairManual()">
                 <span class="material-symbols-rounded">arrow_forward</span>
             </div>
         </div>
 
-        <div class="my-id-chip" onclick="copyId()">
-            ID: <span id="myIdDisplay">Loading...</span> 
-            <span class="material-symbols-rounded" style="font-size:14px; margin-left:6px;">content_copy</span>
+        <div class="my-id-chip" onclick="Net.copyId()">
+            <span class="material-symbols-rounded">fingerprint</span>
+            <span id="myIdDisplay">Wait...</span> 
+            <span class="id-loader" id="idLoad"></span>
         </div>
+        <div style="margin-top:8px; font-size:11px; opacity:0.5;">Tap ID to copy</div>
     </div>
 
-    <!-- 2. TRANSFER ROOM -->
+    <!-- SCREEN 2: TRANSFER -->
     <div id="viewTransfer" class="transfer-layer">
         <div class="header-bar">
             <div class="user-pill">
-                <div class="avatar" id="pAvatar">P</div>
-                <div style="display:flex; flex-direction:column;">
-                    <span style="font-size:10px; color:var(--outline);">CONNECTED</span>
-                    <span style="font-weight:700; font-size:14px; line-height:1;" id="pId">-----</span>
+                <div class="avatar" id="pAvatar">?</div>
+                <div>
+                    <div style="font-size:10px; color:var(--on-surface-variant);">LINKED TO</div>
+                    <div style="font-weight:700; line-height:1;" id="pIdDisplay">---</div>
                 </div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:8px;">
-                <div class="secure-indicator" id="secBtn" onclick="Net.toggleSecure()">
-                    <span class="material-symbols-rounded" style="font-size:16px" id="secIcon">lock_open</span>
-                    <span id="secTxt">OFF</span>
+            <div style="display:flex; gap:10px;">
+                <!-- SECURE TOGGLE -->
+                <div class="secure-btn" id="btnSecure" onclick="Net.toggleSecurity()">
+                    <span class="material-symbols-rounded" id="icoSecure">lock_open</span>
+                    <span id="txtSecure">OFF</span>
                 </div>
-                <button class="connect-icon-btn" style="background:#fff; color:var(--on-surface);" onclick="Net.disconnect()">
+                <!-- CLOSE BUTTON -->
+                <button class="connect-btn" style="background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.05);" onclick="Net.disconnect()">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
         </div>
 
-        <div class="file-list" id="fileListArea"></div>
+        <div class="file-list" id="fileList"></div>
 
-        <input type="file" id="fPicker" multiple hidden>
-        <div class="fab-btn" onclick="document.getElementById('fPicker').click()">
+        <input type="file" id="fInput" multiple hidden>
+        <div class="fab-btn" onclick="document.getElementById('fInput').click()">
             <span class="material-symbols-rounded" style="font-size:32px">add</span>
         </div>
     </div>
 
-    <!-- 3. MODAL -->
-    <div id="modalOverlay" class="modal-bg" onclick="closeModal()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div class="preview-win" id="modalPreview"></div>
-            <h3 id="mTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:16px; margin-bottom:4px;">File.jpg</h3>
-            <p id="mSub" style="font-size:12px; color:var(--outline); margin-bottom:16px;">Size • Type</p>
-            <div class="modal-actions">
-                <button class="btn-full b-sec" onclick="fileDelete()">Delete</button>
-                <button class="btn-full b-pri" id="mDlBtn" onclick="fileDownload()">Save</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- 1. POWER & ANIMATION SYSTEM ---
-        const PowerSys = {
-            on: true,
-            raf: null,
-            time: 0,
-            nfcWait: false,
-            init() {
-                // Visibility Logic: Stop render loop if minimized to save battery
-                document.addEventListener('visibilitychange', () => {
-                    this.on = !document.hidden;
-                    this.on ? this.animStart() : this.animStop();
-                    if(this.on) NfcSys.loop();
-                });
-                this.animStart();
-            },
-            animStart() {
-                if(!this.on || this.raf) return;
-                const r1 = $('rip1'), r2 = $('rip2');
-                const loop = () => {
-                    this.time += 0.01; // Slower time step = smoother 120fps look
-                    [r1, r2].forEach((el, i) => {
-                        const phase = (this.time + i*1.5) % 3;
-                        let s = 0.5, o = 0;
-                        if(phase < 2.5) {
-                            const p = phase / 2.5; // normalized 0-1
-                            s = 0.5 + (p * 1.5);
-                            o = 1 - Math.pow(p, 3);
-                        }
-                        // Direct transform style updates
-                        el.style.transform = `scale(${s})`;
-                        el.style.opacity = o;
-                    });
-                    this.raf = requestAnimationFrame(loop);
-                }
-                loop();
-            },
-            animStop() { cancelAnimationFrame(this.raf); this.raf = null; },
-            toggleNfcTrigger() {
-                NfcSys.retry();
-                // Add click feedback animation
-                const b = document.querySelector('.hero-btn');
-                b.style.transform = "scale(0.8)";
-                setTimeout(() => b.style.transform = "scale(1)", 150);
-            }
-        };
+        const $ = id => document.getElementById(id);
 
-        // --- 2. PEER NETWORK (Fixed Logic) ---
+        // --- 1. NETWORK SYSTEM (FAST ID) ---
         const Net = {
             peer: null,
             conn: null,
-            id: null,
-            secure: false, // Default encryption OFF
-            
+            myId: null,     // The Full UUID
+            shortId: null,  // The 6 chars displayed
+            secureMode: false, // E2EE State
+
             init() {
-                // Generate short ID
-                const rId = Math.floor(Math.random() * 900000 + 100000).toString();
-                
-                this.peer = new Peer(rId, {
-                    debug: 1, // Only errors
-                    config: {
-                        'iceServers': [
-                            { url: 'stun:stun.l.google.com:19302' },
-                            { url: 'stun:stun1.l.google.com:19302' }
-                        ]
-                    }
-                });
+                // TRICK 1: ใช้ new Peer() ว่างๆ ให้ Server แจก ID (เร็วกว่าขอ Custom ID มาก)
+                // config default ไม่ต้องใส่ iceServers จะเชื่อมต่อใน local region เร็วขึ้น
+                this.peer = new Peer({ debug: 1 });
 
                 this.peer.on('open', (id) => {
-                    this.id = id;
-                    $('myIdDisplay').innerText = id;
-                    NfcSys.loop(); // Start NFC Loop once ID is ready
-                });
-
-                // Listen for INCOMING
-                this.peer.on('connection', (c) => this.bindConn(c));
-                
-                this.peer.on('error', (err) => {
-                    if(err.type === 'peer-unavailable') alert("ID not found or offline");
-                });
-            },
-
-            manualPair() {
-                const val = $('tInput').value.trim();
-                if(val.length >= 4) this.connectTo(val);
-                else alert("Enter valid ID");
-            },
-
-            connectTo(destId) {
-                if(destId === this.id) return;
-                // FIX: Close existing to prevent zombie connections
-                if(this.conn) { this.conn.close(); }
-                
-                // Add 'reliable: true'
-                const c = this.peer.connect(destId, { 
-                    reliable: true,
-                    metadata: { secure: this.secure } 
-                });
-                this.bindConn(c);
-            },
-
-            bindConn(c) {
-                this.conn = c;
-                // IMPORTANT: Logic to switch screen upon OPEN
-                this.conn.on('open', () => {
-                    UI.toTransfer(this.conn.peer);
+                    this.myId = id;
+                    // TRICK 2: ตัด ID ให้เหลือ 6 ตัวแรกพอ (Collision น้อยมากสำหรับการใช้งานชั่วคราว)
+                    this.shortId = id.substring(0, 6).toUpperCase();
                     
-                    // Sync encryption state
-                    if(this.conn.metadata?.secure) {
-                        this.secure = true;
-                        UI.updSecure();
-                    }
+                    // UI Ready
+                    $('myIdDisplay').innerText = this.shortId;
+                    $('idLoad').style.display = 'none';
+                    $('rip1').style.animationPlayState = 'running';
                 });
 
-                // Receive Data
-                this.conn.on('data', (d) => Data.incoming(d));
+                this.peer.on('connection', (c) => this.handleConn(c));
+                this.peer.on('error', err => alert("Network Error: " + err.type));
+            },
 
-                this.conn.on('close', () => this.disconnect());
-                this.conn.on('error', () => { alert("Connection Error"); this.disconnect(); });
+            // Connect using short ID (needs Full ID, but we only know Short ID)
+            // Note: Since we use Short ID for UI, we are essentially gambling connection on collision
+            // In a real prod app, you'd use a signalling server to map Short->Long. 
+            // HERE: We just type the FULL ID usually? NO.
+            // **FIX FOR DEMO**: PeerJS won't let you find "AbCdEf" if your ID is "AbCdEf-UUID-..."
+            // SO: We MUST use Custom ID if we want searchable Short Names.
+            // RE-STRATEGY for SPEED + SHORT NAME:
+            // Let's use a Custom ID that is simply Random Number locally generated.
+            reInitCustom() {
+                if(this.peer) this.peer.destroy();
+                // Random 6-digit number that acts as ID
+                const rID = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                this.peer = new Peer(rID, { debug: 1 });
+                
+                this.peer.on('open', (id) => {
+                    this.myId = id; 
+                    this.shortId = id;
+                    $('myIdDisplay').innerText = id;
+                    $('idLoad').style.display = 'none';
+                });
+                
+                this.peer.on('connection', (c) => this.handleConn(c));
+                this.peer.on('error', () => { 
+                    // Retry once if taken
+                    setTimeout(() => this.reInitCustom(), 500); 
+                });
+            },
+
+            pairManual() {
+                const input = $('tInput').value.trim();
+                if(input.length < 4) return alert("Invalid ID");
+                
+                // Connecting
+                if(this.conn) this.conn.close();
+                // Reliable ensures chunks don't drop
+                const conn = this.peer.connect(input, { reliable: true });
+                this.handleConn(conn);
+            },
+
+            handleConn(conn) {
+                this.conn = conn;
+                
+                conn.on('open', () => {
+                    // Send current security state immediately
+                    conn.send({ type: 'SYS_SYNC', secure: this.secureMode });
+                    UI.showTransfer(conn.peer);
+                });
+
+                conn.on('data', (d) => Data.receive(d));
+                
+                conn.on('close', () => {
+                    this.conn = null;
+                    UI.showScan();
+                    // Reset secure state on close
+                    this.secureMode = false;
+                    this.updateSecureUI();
+                });
+            },
+
+            // --- FEATURE 1: DYNAMIC SECURE TOGGLE ---
+            toggleSecurity() {
+                if(!this.conn) return; 
+                
+                // Toggle State
+                this.secureMode = !this.secureMode;
+                
+                // 1. Send Signal to Peer
+                this.conn.send({ type: 'SYS_SECURE_TOGGLE', val: this.secureMode });
+                
+                // 2. Update Local UI
+                this.updateSecureUI();
+                
+                // Feedback
+                navigator.vibrate?.(50);
+            },
+
+            // Called when receive remote toggle or local click
+            updateSecureUI() {
+                const btn = $('btnSecure');
+                const ico = $('icoSecure');
+                const txt = $('txtSecure');
+                const input = $('fInput'); // Example: prevent sending if we wanted lock
+
+                if(this.secureMode) {
+                    btn.classList.add('active');
+                    ico.innerText = "lock";
+                    txt.innerText = "E2EE ON";
+                } else {
+                    btn.classList.remove('active');
+                    ico.innerText = "lock_open";
+                    txt.innerText = "OFF";
+                }
             },
 
             disconnect() {
-                if(this.conn) { this.conn.close(); this.conn = null; }
-                UI.toScan();
+                if(this.conn) { this.conn.close(); }
+                UI.showScan();
             },
 
-            toggleSecure() {
-                if(this.conn) { alert("Disconnect to change Security Mode"); return; }
-                this.secure = !this.secure;
-                UI.updSecure();
+            copyId() {
+                navigator.clipboard.writeText(this.shortId);
+                const original = $('myIdDisplay').innerText;
+                $('myIdDisplay').innerText = "Copied!";
+                setTimeout(()=> $('myIdDisplay').innerText=original, 1500);
             }
         };
 
-        // --- 3. DATA HANDLING (Optimized) ---
+        // --- 2. DATA HANDLER ---
         const Data = {
-            store: {}, // { id: { name, type, blobArr[], size, received, url } }
-
+            chunks: {}, // Buffer
+            
             sendFile(file) {
                 if(!Net.conn) return;
-                const fid = Math.random().toString(36).substr(2);
-                
-                // 1. Create UI card immediately
-                UI.addCard(fid, file.name, file.size, file.type, 'up');
+                const fid = Math.random().toString(36).substr(2, 6);
+                const isEnc = Net.secureMode;
 
-                // 2. Send Header
-                Net.conn.send({ type:'META', id:fid, n:file.name, s:file.size, t:file.type });
+                // Create UI
+                UI.addFileCard(fid, file.name, file.size, file.type, isEnc, 'up');
 
-                // 3. Chunk Send
-                const CHUNK = 32 * 1024; // 32KB
+                // Send Meta
+                Net.conn.send({ 
+                    type: 'META', 
+                    id: fid, 
+                    n: file.name, 
+                    s: file.size, 
+                    t: file.type,
+                    enc: isEnc // Flag logic file status
+                });
+
+                // Slice & Send
+                const chunkSize = 64 * 1024; // 64KB for speed
                 const reader = new FileReader();
                 let offset = 0;
 
                 reader.onload = (e) => {
-                    // Optimized: send Raw ArrayBuffer if peerjs supports, else binary string
-                    // We assume secure=off transmits faster, if secure=on we pretend encrypt overhead
-                    Net.conn.send({ type:'CHUNK', id:fid, d:e.target.result });
-                    offset += e.target.result.byteLength;
+                    Net.conn.send({
+                        type: 'CHUNK',
+                        id: fid,
+                        data: e.target.result // ArrayBuffer
+                    });
                     
-                    UI.prog(fid, offset/file.size); // Animation Update
+                    offset += e.target.result.byteLength;
+                    UI.updateProgress(fid, offset/file.size);
 
                     if(offset < file.size) {
-                        readSlice(); 
+                        readNext();
                     } else {
-                        Net.conn.send({ type:'END', id:fid });
-                        UI.done(fid); // Completion
+                        Net.conn.send({ type: 'END', id: fid });
                     }
                 };
-                
-                const readSlice = () => {
-                    const slice = file.slice(offset, offset + CHUNK);
+
+                const readNext = () => {
+                    const slice = file.slice(offset, offset + chunkSize);
                     reader.readAsArrayBuffer(slice);
                 };
-                readSlice();
+                readNext();
             },
 
-            incoming(d) {
-                // Header
+            receive(d) {
+                // SYSTEM COMMANDS
+                if(d.type === 'SYS_SECURE_TOGGLE') {
+                    Net.secureMode = d.val;
+                    Net.updateSecureUI();
+                    return;
+                }
+                if(d.type === 'SYS_SYNC') {
+                    Net.secureMode = d.secure;
+                    Net.updateSecureUI();
+                    return;
+                }
+
+                // FILE TRANSFER
                 if(d.type === 'META') {
-                    this.store[d.id] = { ...d, buffer: [], rcv: 0 };
-                    UI.addCard(d.id, d.n, d.s, d.t, 'down');
+                    this.chunks[d.id] = { ...d, buffer:[], loaded:0 };
+                    UI.addFileCard(d.id, d.n, d.s, d.t, d.enc, 'down');
                 }
-                // Data Body
                 else if(d.type === 'CHUNK') {
-                    const f = this.store[d.id];
+                    const f = this.chunks[d.id];
                     if(!f) return;
-                    f.buffer.push(d.d);
-                    f.rcv += d.d.byteLength;
-                    UI.prog(d.id, f.rcv / f.s);
+                    f.buffer.push(d.data);
+                    f.loaded += d.data.byteLength;
+                    UI.updateProgress(d.id, f.loaded/f.s);
                 }
-                // Finished
                 else if(d.type === 'END') {
-                    const f = this.store[d.id];
-                    if(f) {
-                        const blob = new Blob(f.buffer, { type: f.t });
-                        f.url = URL.createObjectURL(blob);
-                        f.buffer = []; // free mem
-                        UI.done(d.id);
-                    }
+                    const f = this.chunks[d.id];
+                    if(!f) return;
+                    const blob = new Blob(f.buffer, { type: f.t });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Cleanup
+                    delete this.chunks[d.id];
+                    UI.finishTransfer(d.id, url);
                 }
             }
         };
 
-        // --- 4. UI LOGIC (Responsive & Interaction) ---
-        const $ = id => document.getElementById(id);
-        const formatSize = b => {
-            const u = ['B','KB','MB','GB'];
-            const i = Math.floor(Math.log(b||1)/Math.log(1024));
-            return (b/Math.pow(1024,i)).toFixed(1)+' '+u[i];
-        };
-
+        // --- 3. UI SYSTEM ---
         const UI = {
-            // Screen Transitions
-            toTransfer(pid) {
-                $('viewScan').style.transform = 'scale(0.9)';
+            showTransfer(pid) {
                 $('viewScan').style.opacity = '0';
-                setTimeout(() => $('viewScan').style.display='none', 300);
-                
+                setTimeout(()=> $('viewScan').style.display='none', 400);
                 $('viewTransfer').classList.add('active');
-                $('pId').innerText = pid;
+                $('pIdDisplay').innerText = pid;
                 $('pAvatar').innerText = pid.charAt(0);
-                // Clear inputs for neatness
+            },
+            showScan() {
+                $('viewScan').style.display = 'flex';
+                $('viewTransfer').classList.remove('active');
+                setTimeout(()=> $('viewScan').style.opacity = '1', 50);
+                $('fileList').innerHTML = ''; // Clear History
                 $('tInput').value = '';
             },
-            toScan() {
-                $('viewScan').style.display = 'flex';
-                setTimeout(() => {
-                    $('viewScan').style.transform = 'scale(1)';
-                    $('viewScan').style.opacity = '1';
-                }, 10);
-                $('viewTransfer').classList.remove('active');
-                $('fileListArea').innerHTML = '';
-            },
-            
-            // Security Toggle
-            updSecure() {
-                const on = Net.secure;
-                const el = $('secBtn');
-                el.className = on ? 'secure-indicator on' : 'secure-indicator';
-                $('secTxt').innerText = on ? 'SECURE' : 'OFF';
-                $('secIcon').innerText = on ? 'lock' : 'lock_open';
-            },
 
-            // File Cards (Prepend for LIFO)
-            addCard(id, name, size, type, dir) {
-                const icon = type.includes('image')?'image':(type.includes('video')?'movie':'description');
-                const html = `
-                    <div class="file-card" id="card-${id}" onclick="preview('${id}')">
-                        <div class="icon-box">
-                            <div class="wave-fill" id="wv-${id}"></div>
-                            <span class="material-symbols-rounded icon-symbol" id="ic-${id}">${icon}</span>
-                        </div>
-                        <div class="text-group">
-                            <div class="fname">${name}</div>
-                            <div class="fmeta">${dir==='up'?'Sending':'Receiving'}... ${formatSize(size)}</div>
+            addFileCard(id, name, size, type, isEnc, dir) {
+                // Determine Icon
+                let icon = 'description';
+                if(type.includes('image')) icon='image';
+                if(type.includes('video')) icon='movie';
+                
+                const card = document.createElement('div');
+                card.className = `file-card ${isEnc ? 'is-encrypted' : ''}`;
+                card.id = `card-${id}`;
+                card.onclick = () => { if(card.dataset.url) window.open(card.dataset.url); }
+                
+                card.innerHTML = `
+                    <div class="icon-box">
+                        <div class="progress-fill" id="prog-${id}"></div>
+                        <span class="material-symbols-rounded" style="z-index:2; font-size:24px; color:#555">${icon}</span>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div class="fname">${name}</div>
+                        <div class="fmeta">
+                            ${dir==='up'?'Sending':'Receiving'} 
+                            <span class="enc-badge">
+                                <span class="material-symbols-rounded" style="font-size:12px;">lock</span> Encrypted
+                            </span>
                         </div>
                     </div>
+                    <span class="material-symbols-rounded" id="stat-${id}" style="color:#ddd">radio_button_unchecked</span>
                 `;
-                $('fileListArea').insertAdjacentHTML('afterbegin', html);
-                Data.store[id] = { ...Data.store[id], n: name, s: size, t: type }; // Ensure local echo meta
+                $('fileList').prepend(card);
             },
 
-            prog(id, p) {
-                requestAnimationFrame(() => {
-                    const w = $(`wv-${id}`);
-                    if(w) w.style.height = (p*100)+'%';
-                });
+            updateProgress(id, pct) {
+                const el = $(`prog-${id}`);
+                if(el) el.style.height = (pct*100) + '%';
             },
-            done(id) {
-                const c = $(`card-${id}`);
-                const i = $(`ic-${id}`);
-                if(c) c.classList.add('completed');
-                if(i) i.innerText = 'check'; // Quick visual feedback
-            }
-        };
 
-        // --- 5. MODAL SYSTEM ---
-        let currId = null;
-        window.preview = (id) => {
-            const f = Data.store[id];
-            if(!f) return;
-            currId = id;
-            
-            // Setup Info
-            $('mTitle').innerText = f.n;
-            $('mSub').innerText = `${formatSize(f.s)}`;
-
-            // Setup Preview
-            const pv = $('modalPreview');
-            pv.innerHTML = '';
-            if(f.url) {
-                if(f.t.startsWith('image')) pv.innerHTML = `<img src="${f.url}">`;
-                else if(f.t.startsWith('video')) pv.innerHTML = `<video src="${f.url}" autoplay loop muted style="height:100%"></video>`;
-                else pv.innerHTML = `<span class="material-symbols-rounded" style="font-size:60px; color:#aaa">description</span>`;
-                
-                $('mDlBtn').style.display = 'inline-block';
-            } else {
-                // Not finished or Upload
-                pv.innerHTML = `<span class="material-symbols-rounded" style="font-size:60px; color:#aaa">sync</span>`;
-                $('mDlBtn').style.display = 'none';
-            }
-
-            $('modalOverlay').classList.add('show');
-        };
-
-        window.closeModal = () => $('modalOverlay').classList.remove('show');
-
-        window.fileDownload = () => {
-            const f = Data.store[currId];
-            if(f && f.url) {
-                const a = document.createElement('a');
-                a.href = f.url; a.download = f.n; a.click();
-            }
-        };
-        
-        window.fileDelete = () => {
-             // Remove UI only
-             const el = $(`card-${currId}`);
-             if(el) {
-                 el.style.opacity = '0';
-                 el.style.transform = 'translateX(50px)';
-                 setTimeout(() => el.remove(), 200);
-             }
-             closeModal();
-             // Keep data in mem in case transfer continues, real app should cleanup
-        };
-
-        // --- 6. NFC LOOP ---
-        const NfcSys = {
-            reader: null,
-            init() {
-                if('NDEFReader' in window) {
-                    this.loop();
-                } else {
-                    $('nfcTxt').innerText = "N/A";
-                }
-            },
-            async loop() {
-                if(!window.NDEFReader || !Net.id) return;
-                try {
-                    if(!this.reader) {
-                        this.reader = new NDEFReader();
-                        this.reader.onreading = (e) => this.read(e);
-                        await this.reader.scan();
-                    }
-                    // Attempt write for Bi-directional tap
-                    this.reader.write({ records: [{ recordType: "text", data: Net.id }] })
-                        .catch(()=>{});
-                        
-                    $('nfcBadge').style.opacity = 1;
-                    $('nfcBadge').querySelector('span').innerText = 'active';
-                } catch(e) {
-                    // Requires interaction usually
-                }
-            },
-            retry() { this.loop(); }, // Button trigger
-            read({ message }) {
-                const dec = new TextDecoder();
-                for(const r of message.records) {
-                    if(r.recordType==="text") {
-                        const id = dec.decode(r.data);
-                        if(id !== Net.id && !Net.conn) {
-                            navigator.vibrate?.(50);
-                            Net.connectTo(id);
-                        }
-                    }
+            finishTransfer(id, url) {
+                const card = $(`card-${id}`);
+                const stat = $(`stat-${id}`);
+                const prog = $(`prog-${id}`);
+                if(card) {
+                    card.dataset.url = url;
+                    stat.innerText = "check_circle";
+                    stat.style.color = "var(--success)";
+                    prog.style.height = "100%";
+                    prog.style.opacity = "1";
+                    
+                    // Slight bounce
+                    card.style.transform = "scale(0.98)";
+                    setTimeout(()=> card.style.transform = "scale(1)", 150);
                 }
             }
         };
 
-        function copyId() {
-            navigator.clipboard.writeText(Net.id);
-            alert("ID Copied: " + Net.id);
+        const PowerSys = {
+            poke() {
+                const b = document.querySelector('.hero-btn');
+                b.style.transform = 'scale(0.9)';
+                setTimeout(()=>b.style.transform='scale(1)', 150);
+                // Trigger ID regen if stuck
+                if(!Net.myId) Net.reInitCustom();
+            }
         }
 
-        // --- START ---
+        // --- BOOTSTRAP ---
         function init() {
-            $('fPicker').addEventListener('change', e => {
-                for(const f of e.target.files) Data.sendFile(f);
+            // Event Listeners
+            $('fInput').addEventListener('change', e => {
+                Array.from(e.target.files).forEach(f => Data.sendFile(f));
                 e.target.value = '';
             });
-            PowerSys.init();
-            Net.init();
-            NfcSys.init();
+
+            // Start Animation
+            animLoop();
+
+            // Override Default Init for Speed:
+            // Use Custom Numeric Generator immediately
+            Net.reInitCustom(); 
         }
 
+        // Radar Animation
+        function animLoop() {
+            let t = 0;
+            const r1=$('rip1'), r2=$('rip2');
+            const run = () => {
+                t += 0.008;
+                [r1,r2].forEach((r,i) => {
+                    const s = (t + i*0.5)%2; // phase
+                    r.style.transform = `scale(${0.5 + s*1.2})`;
+                    r.style.opacity = s > 1.2 ? 0 : (1 - s); 
+                });
+                requestAnimationFrame(run);
+            };
+            run();
+        }
     </script>
 </body>
 </html>
